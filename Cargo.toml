@@ -42,7 +42,7 @@ serde = "1.0.114"
 serde_derive = "1.0.114"
 serde_json = "1.0.55"
 serde_urlencoded = "0.6.1"
-tokio = { version = "1.0", features = ["time", "fs"] }
+tokio = { version = "1.0", features = ["time", "fs", "io-util"] }
 thiserror = "1.0"
 tokio-util = { version = "0.6.0", features = ["codec"] }
 url = "2.2.0"

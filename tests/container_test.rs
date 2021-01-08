@@ -166,7 +166,7 @@ async fn top_processes_test(docker: Docker) -> Result<(), Error> {
     } else if cfg!(target_os = "macos") {
         "PID"
     } else {
-        "UID"
+        "PID"
     };
 
     create_daemon(&docker, "integration_test_top_processes").await?;
@@ -426,11 +426,14 @@ async fn prune_containers_test(docker: Docker) -> Result<(), Error> {
         0,
         result
             .into_iter()
-            .filter(
-                |r| vec!["bollard", "registry:2", "stefanscherer/registry-windows", "moby/buildkit:master"]
-                    .into_iter()
-                    .all(|v| v != r.image.as_ref().unwrap())
-            )
+            .filter(|r| vec![
+                "bollard",
+                "registry:2",
+                "stefanscherer/registry-windows",
+                "moby/buildkit:master"
+            ]
+            .into_iter()
+            .all(|v| v != r.image.as_ref().unwrap()))
             .collect::<Vec<_>>()
             .len()
     );

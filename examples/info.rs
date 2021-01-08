@@ -53,7 +53,7 @@ async fn conc(arg: (Docker, &ContainerSummary)) -> () {
 fn main() {
     env_logger::init();
 
-    let mut rt = Runtime::new().unwrap();
+    let rt = Runtime::new().unwrap();
 
     rt.block_on(run()).unwrap();
 }

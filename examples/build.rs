@@ -11,7 +11,7 @@ use futures_util::stream::TryStreamExt;
 use tokio::runtime::Runtime;
 
 fn main() {
-    let mut rt = Runtime::new().unwrap();
+    let rt = Runtime::new().unwrap();
     #[cfg(unix)]
     let docker = Docker::connect_with_unix_defaults().unwrap();
     #[cfg(windows)]

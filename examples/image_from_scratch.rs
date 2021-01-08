@@ -85,6 +85,6 @@ fn main() {
 
     let archive = File::open(&arguments[1]).expect("Could not find archive.");
 
-    let mut rt = Runtime::new().unwrap();
+    let rt = Runtime::new().unwrap();
     rt.block_on(run(archive)).unwrap();
 }

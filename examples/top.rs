@@ -15,7 +15,7 @@ use tokio::runtime::Runtime;
 fn main() {
     env_logger::init();
 
-    let mut rt = Runtime::new().unwrap();
+    let rt = Runtime::new().unwrap();
     #[cfg(unix)]
     let docker = Docker::connect_with_unix_defaults().unwrap();
     #[cfg(windows)]
