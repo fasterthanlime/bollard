@@ -11,7 +11,7 @@ use std::{
     io::{self},
     marker::PhantomData,
 };
-use tokio::io::AsyncRead;
+use tokio::io::{AsyncRead, ReadBuf};
 use tokio_util::codec::Decoder;
 
 use crate::container::LogOutput;
@@ -140,7 +140,7 @@ where
                 decode_json_from_slice(&slice)
             } else {
                 // OSX will not send a newline for some API endpoints (`/events`),
-                if src[src.len()-1] == b'}' {
+                if src[src.len() - 1] == b'}' {
                     decode_json_from_slice(&src)
                 } else {
                     Ok(None)
@@ -186,25 +186,21 @@ where
     fn poll_read(
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
-        buf: &mut [u8],
-    ) -> Poll<io::Result<usize>> {
+        buf: &mut ReadBuf<'_>,
+    ) -> Poll<io::Result<()>> {
         let mut this = self.project();
         loop {
-            let ret;
-
             match this.state {
                 ReadState::Ready(ref mut chunk, ref mut pos) => {
                     let chunk_start = *pos;
-                    let len = cmp::min(buf.len(), chunk.len() - chunk_start);
+                    let len = cmp::min(buf.remaining(), chunk.len() - chunk_start);
                     let chunk_end = chunk_start + len;
 
-                    buf[..len].copy_from_slice(&chunk[chunk_start..chunk_end]);
+                    buf.put_slice(&chunk[chunk_start..chunk_end]);
                     *pos += len;
 
-                    if *pos == chunk.len() {
-                        ret = len;
-                    } else {
-                        return Poll::Ready(Ok(len));
+                    if *pos != chunk.len() {
+                        return Poll::Ready(Ok(()));
                     }
                 }
 
@@ -214,7 +210,7 @@ where
 
                         continue;
                     }
-                    Poll::Ready(None) => return Poll::Ready(Ok(0)),
+                    Poll::Ready(None) => return Poll::Ready(Ok(())),
                     Poll::Pending => {
                         return Poll::Pending;
                     }
@@ -229,7 +225,7 @@ where
 
             *this.state = ReadState::NotReady;
 
-            return Poll::Ready(Ok(ret));
+            return Poll::Ready(Ok(()));
         }
     }
 }
